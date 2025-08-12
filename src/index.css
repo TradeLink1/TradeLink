@@ -1,9 +1,92 @@
 @import "tailwindcss";
-@theme{
-  --breakpoint-tablet:768px;
+
+@theme {
+  --breakpoint-tablet: 800px;
   --breakpoint-mobile: 500px;
 }
-body{
-   font-family: "Raleway", sans-serif;
-   background-color: #fef6e1;
+
+:root {
+  font-family: "Raleway", sans-serif, system-ui, Avenir, Helvetica, Arial,
+    sans-serif;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #fef6e1;
+}
+
+button {
+  font-family: "Raleway", sans-serif;
+  font-weight: 600;
+  width: max-content;
+}
+
+/* <<< ISHOLA CSS STYLES >>> */
+
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUpFade 0.6s ease-out forwards;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#categories {
+  background-image: url("/pat2.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#beat {
+  display: inline-block;
+  animation: beat-zoom 1.2s ease-in-out infinite;
+}
+
+@keyframes beat-zoom {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+}
+
+#whysection {
+  background-image: url("/pat2.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#tessection {
+  background-image: url("/pat2.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* <<< ISHOLA CSS STYLES >>> */
