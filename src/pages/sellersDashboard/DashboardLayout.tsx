@@ -13,13 +13,13 @@ const DashboardLayout = () => {
 
   const handleLogout = () => {
     closeSidebar();
-    localStorage.removeItem("authToken"); // Optional: clear login token
-    navigate("/"); // Redirect to homepage
+    localStorage.removeItem("authToken"); 
+    navigate("/"); 
   };
 
   return (
-    <div className="flex min-h-screen pt-[80px] relative ">
-      {/* Sidebar */}
+    <div className="flex min-h-screen pt-[80px] relative max-w-[1200px]">
+      
       <aside
         className={`
           bg-[#fbf2e7] border-r p-5 shadow-lg border-[#d6d6d6]
@@ -31,18 +31,18 @@ const DashboardLayout = () => {
           top-[80px] h-auto md:h-[calc(100vh-80px)]
         `}
       >
-        {/* Sidebar header */}
-        <div className="flex items-center justify-between border-b-2 border-[#d6d6d6] mb-7 pb-5 ">
+      
+        <div className="flex items-center justify-between border-b-2 border-[#d6d6d6] mb-7 pb-5 pt-6">
           <h2 className="text-xl pl-3 font-bold text-[#f89216]">Seller Dashboard</h2>
           <button
-            className="md:hidden p-1 rounded-md bg-green-200  cursor-pointer"
+            className="md:hidden p-1 rounded-md cursor-pointer bg-[#f89216]"
             onClick={toggleSidebar}
           >
             <IoClose size={24} color="white" />
           </button>
         </div>
 
-        {/* Links */}
+      
         <nav className="flex flex-col gap-4 text-[#333333] font-bold pl-3 ">
           <NavLink to="/dashboard" end onClick={closeSidebar}>
             <div className="hover:text-[#f89216] text-[#333333] bg-[white] p-2 shadow-lg rounded-2xl text-center">
@@ -71,7 +71,7 @@ const DashboardLayout = () => {
           </NavLink>
         </nav>
 
-        {/* Logout */}
+        
         <div className="pt-10 flex justify-center">
           <button type="button" onClick={() =>{
             console.log("LOGOUT CLICKED") 
@@ -81,9 +81,9 @@ const DashboardLayout = () => {
         </div>
       </aside>
 
-      {/* Main content */}
+    
       <main className="flex-1 p-4">
-        {/* Mobile hamburger */}
+      
         <div className="md:hidden pt-4">
           {!isOpen && (
             <button

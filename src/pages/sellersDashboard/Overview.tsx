@@ -35,7 +35,7 @@ const Overview = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Replace this with real API call later
+        
         setStats({
           totalProducts: 12,
           pendingOrders: 3,
@@ -117,7 +117,7 @@ const Overview = () => {
       </div>
 
       
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white p-6 rounded-lg shadow-md max-w-[1200px]">
         <h2 className="text-xl font-bold mb-4 text-[#f89216]">Recent Messages</h2>
         {recentMessages.length > 0 ? (
           <ul className="space-y-2">
