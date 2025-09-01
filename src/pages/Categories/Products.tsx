@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 const Products: React.FC = () => {
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("All Locations");
-  const [service, setService] = useState("All Categories");
+  const [category, setCategory] = useState("All Categories");
   const [sellers, setSellers] = useState<any[]>([]);
   const [filteredSellers, setFilteredSellers] = useState<any[]>([]);
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const Products: React.FC = () => {
     fetch("https://tradelink-backend-5a6c.onrender.com/api/v1/sellers/get/all/sellers", {
       headers: {
         "Content-Type": "application/json",
-        // 🔑 If auth is required, add token here:
+        // If token needed:
         // Authorization: `Bearer ${localStorage.getItem("authToken")}`
       },
     })
@@ -30,19 +30,28 @@ const Products: React.FC = () => {
 
   // 🔍 Filter sellers
   const handleFilterChange = () => {
-    const filtered = sellers.filter(
-      (s) =>
-        (query === "" ||
-          s.name.toLowerCase().includes(query.toLowerCase()) ||
-          s.category.toLowerCase().includes(query.toLowerCase())) &&
-        (location === "All Locations" || s.location === location) &&
-        (service === "All Categories" || s.category === service)
-    );
+    const filtered = sellers.filter((s) => {
+      const matchesQuery =
+        query === "" ||
+        s.storeName.toLowerCase().includes(query.toLowerCase()) ||
+        (s.businessCategory || "").toLowerCase().includes(query.toLowerCase());
+
+      const matchesLocation =
+        location === "All Locations" ||
+        (s.location?.address || "").toLowerCase() === location.toLowerCase();
+
+      const matchesCategory =
+        category === "All Categories" ||
+        (s.businessCategory || "").toLowerCase() === category.toLowerCase();
+
+      return matchesQuery && matchesLocation && matchesCategory;
+    });
+
     setFilteredSellers(filtered);
   };
 
   const handleViewProfile = (sellerId: string) => {
-    navigate(`/sellers/${sellerId}`); // ✅ Route to SellerProfile
+    navigate(`/sellers/${sellerId}`); // ✅ Goes to SellerProfile.tsx
   };
 
   return (
@@ -69,10 +78,11 @@ const Products: React.FC = () => {
             className="w-full text-sm outline-none"
           >
             <option>All Locations</option>
-            {/* generate from sellers */}
-            {[...new Set(sellers.map((s) => s.location))].map((loc) => (
-              <option key={loc}>{loc}</option>
-            ))}
+            {[...new Set(sellers.map((s) => s.location?.address).filter(Boolean))].map(
+              (loc) => (
+                <option key={loc}>{loc}</option>
+              )
+            )}
           </select>
         </div>
 
@@ -80,14 +90,16 @@ const Products: React.FC = () => {
         <div className="flex items-center gap-2 border rounded-lg px-3 py-2">
           <Briefcase size={16} className="text-gray-500" />
           <select
-            value={service}
-            onChange={(e) => setService(e.target.value)}
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
             className="w-full text-sm outline-none"
           >
             <option>All Categories</option>
-            {[...new Set(sellers.map((s) => s.category))].map((cat) => (
-              <option key={cat}>{cat}</option>
-            ))}
+            {[...new Set(sellers.map((s) => s.businessCategory).filter(Boolean))].map(
+              (cat) => (
+                <option key={cat}>{cat}</option>
+              )
+            )}
           </select>
         </div>
 
@@ -115,22 +127,24 @@ const Products: React.FC = () => {
             >
               <div className="relative">
                 <img
-                  src={s.image}
-                  alt={s.name}
+                  src={s.logo || "https://via.placeholder.com/150"}
+                  alt={s.storeName}
                   className="h-28 w-full object-cover rounded mb-3"
                 />
               </div>
 
               <h3 className="font-semibold text-lg sm:text-sm text-orange-600">
-                {s.category}
+                {s.businessCategory || "Uncategorized"}
               </h3>
               <p className="font-medium text-[11px] sm:text-xs text-gray-800">
-                {s.name}
+                {s.storeName}
               </p>
               <p className="text-[10px] sm:text-xs text-gray-500">
-                {s.location}
+                {s.location?.address || "No address"}
               </p>
-              <p className="text-[20px] text-yellow-600">⭐ {s.reviews}</p>
+              <p className="text-[12px] text-gray-600">
+                📞 {s.phone || "N/A"}
+              </p>
               <Button className="mt-auto w-full bg-orange-500 text-white hover:bg-orange-600 text-xs py-1.5">
                 View Profile
               </Button>
