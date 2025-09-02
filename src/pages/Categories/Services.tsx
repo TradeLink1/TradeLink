@@ -13,11 +13,24 @@ const ServiceProviders: React.FC = () => {
 
   // Fetch all sellers (service providers)
   useEffect(() => {
-    fetch("/api/v1/sellers/get/all/sellers")
+    fetch(
+      "https://tradelink-backend-6z6y.onrender.com/api/v1/sellers/get/all/sellers",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
-        setProviders(data);
-        setFilteredProviders(data); // Initial population of filtered data
+        if (data?.message === "Access denied. No token provided") {
+          navigate("/login");
+        } else {
+          console.log(data);
+          console.log(data.sellers);
+          // setProviders(data.sellers);
+          setFilteredProviders(data.sellers); // Initial population of filtered data
+        }
       })
       .catch((error) => console.error("Error fetching sellers:", error));
   }, []);
@@ -27,7 +40,9 @@ const ServiceProviders: React.FC = () => {
     if (query) {
       fetch(`/api/v1/sellers/search?query=${query}`)
         .then((response) => response.json())
-        .then((data) => setFilteredProviders(data))
+        .then((data) => {
+          setFilteredProviders(data.sellers);
+        })
         .catch((error) => console.error("Error searching sellers:", error));
     } else {
       setFilteredProviders(providers); // Reset to all providers when query is empty
@@ -96,7 +111,10 @@ const ServiceProviders: React.FC = () => {
             <option>Caterer</option>
           </select>
         </div>
-        <Button className="flex items-center justify-center gap-2 text-sm" onClick={handleFilterChange}>
+        <Button
+          className="flex items-center justify-center gap-2 text-sm"
+          onClick={handleFilterChange}
+        >
           Apply Filters
         </Button>
       </div>
@@ -104,9 +122,11 @@ const ServiceProviders: React.FC = () => {
       {/* Providers Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-4 gap-4">
         {filteredProviders.length === 0 ? (
-          <p className="text-center text-gray-500 col-span-full">No providers found.</p>
+          <p className="text-center text-gray-500 col-span-full">
+            No providers found.
+          </p>
         ) : (
-          filteredProviders.map((p) => (
+          filteredProviders?.map((p) => (
             <div
               key={p.id}
               className="border rounded-lg bg-white shadow-sm hover:shadow-md transition p-3 flex flex-col cursor-pointer"
@@ -120,10 +140,15 @@ const ServiceProviders: React.FC = () => {
                 />
               </div>
 
-              <h3 className="font-semibold text-lg sm:text-sm text-orange-600">{p.category}</h3>
-              <p className="font-medium text-[11px] sm:text-xs text-gray-800">{p.name}</p>
-              <p className="text-[10px] sm:text-xs text-gray-500">{p.location}</p>
-              <p className="text-[20px] text-yellow-600">⭐ {p.rating}</p>
+              <h3 className="font-semibold text-lg sm:text-sm text-orange-600">
+                {p.businessCategory}
+              </h3>
+              <p className="font-medium text-[11px] sm:text-xs text-gray-800">
+                {p.storeName}
+              </p>
+              <p className="text-[10px] sm:text-xs text-gray-500">{p.phone}</p>
+              <p className="text-[10px] sm:text-xs text-gray-500">{p.email}</p>
+              {/* <p className="text-[20px] text-yellow-600">⭐ {p.rating}</p> */}
               <Button className="mt-auto w-full bg-orange-500 text-white hover:bg-orange-600 text-xs py-1.5">
                 View Profile
               </Button>

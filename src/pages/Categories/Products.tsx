@@ -19,13 +19,15 @@ const Products: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
           // 🔑 If auth is required, add token here:
-          // Authorization: `Bearer ${localStorage.getItem("authToken")}`
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     )
       .then((response) => response.json())
       .then((data) => {
         setSellers(data.sellers || []);
+        console.log(data.sellers);
+        console.log(data);
         setFilteredSellers(data.sellers || []);
       })
       .catch((error) => console.error("Error fetching sellers:", error));
@@ -33,15 +35,15 @@ const Products: React.FC = () => {
 
   // 🔍 Filter sellers
   const handleFilterChange = () => {
-    const filtered = sellers.filter(
-      (s) =>
-        (query === "" ||
-          s.name.toLowerCase().includes(query.toLowerCase()) ||
-          s.category.toLowerCase().includes(query.toLowerCase())) &&
-        (location === "All Locations" || s.location === location) &&
-        (service === "All Categories" || s.category === service)
-    );
-    setFilteredSellers(filtered);
+    // const filtered = sellers.filter(
+    //   (s) =>
+    //     (query === "" ||
+    //       s.name.toLowerCase().includes(query.toLowerCase()) ||
+    //       s.category.toLowerCase().includes(query.toLowerCase())) &&
+    //     (location === "All Locations" || s.location === location) &&
+    //     (service === "All Categories" || s.category === service)
+    // );
+    // setFilteredSellers(filtered);
   };
 
   const handleViewProfile = (sellerId: string) => {
@@ -53,7 +55,7 @@ const Products: React.FC = () => {
       {/* Filters */}
       <div className="bg-white p-4 rounded-2xl shadow mb-6 grid gap-4 md:grid-cols-4">
         {/* Search */}
-        <div className="flex items-center gap-2 border rounded-lg px-3 py-2">
+        {/* <div className="flex items-center gap-2 border rounded-lg px-3 py-2">
           <Search size={16} className="text-gray-500" />
           <input
             placeholder="Search sellers..."
@@ -61,10 +63,10 @@ const Products: React.FC = () => {
             onChange={(e) => setQuery(e.target.value)}
             className="w-full text-sm outline-none"
           />
-        </div>
+        </div> */}
 
         {/* Location */}
-        <div className="flex items-center gap-2 border rounded-lg px-3 py-2">
+        {/* <div className="flex items-center gap-2 border rounded-lg px-3 py-2">
           <MapPin size={16} className="text-gray-500" />
           <select
             value={location}
@@ -72,12 +74,11 @@ const Products: React.FC = () => {
             className="w-full text-sm outline-none"
           >
             <option>All Locations</option>
-            {/* generate from sellers */}
             {[...new Set(sellers.map((s) => s.location))].map((loc) => (
               <option key={loc}>{loc}</option>
             ))}
           </select>
-        </div>
+        </div> */}
 
         {/* Category */}
         <div className="flex items-center gap-2 border rounded-lg px-3 py-2">
@@ -110,7 +111,7 @@ const Products: React.FC = () => {
             No sellers found.
           </p>
         ) : (
-          filteredSellers.map((s) => (
+          filteredSellers?.map((s, index) => (
             <div
               key={s._id}
               className="border rounded-lg bg-white shadow-sm hover:shadow-md transition p-3 flex flex-col cursor-pointer"
@@ -127,13 +128,13 @@ const Products: React.FC = () => {
               <h3 className="font-semibold text-lg sm:text-sm text-orange-600">
                 {s.category}
               </h3>
-              <p className="font-medium text-[11px] sm:text-xs text-gray-800">
-                {s.name}
+              <p className="font-medium capitalize text-[11px] sm:text-xs text-gray-800">
+                {s.storeName}
               </p>
               <p className="text-[10px] sm:text-xs text-gray-500">
-                {s.location}
+                {s?.location?.address}
               </p>
-              <p className="text-[20px] text-yellow-600">⭐ {s.reviews}</p>
+              {/* <p className="text-[20px] text-yellow-600">⭐ {s.reviews}</p> */}
               <Button className="mt-auto w-full bg-orange-500 text-white hover:bg-orange-600 text-xs py-1.5">
                 View Profile
               </Button>

@@ -96,7 +96,8 @@ const App = () => {
                 <Route path="upload" element={<UploadProduct />} />
                 <Route
                   path="listings"
-                  element={<MyListings sellerId="user.id" />}
+                  // element={<MyListings sellerId="user.id" />}
+                  element={<MyListings />}
                 />
                 <Route path="messages" element={<Messages />} />
                 <Route path="settings" element={<Settings />} />
