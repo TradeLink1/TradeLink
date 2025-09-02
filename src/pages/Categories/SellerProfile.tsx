@@ -15,12 +15,16 @@ export default function SellerProfile() {
   useEffect(() => {
     if (!sellerId) return;
 
-    fetch(`https://tradelink-backend-5a6c.onrender.com/api/v1/sellers/get/${sellerId}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `http://localhost:5500/api/v1/sellers/get/${sellerId}`,
+      // `https://https://tradelink-backend-6z6y.onrender.com/api/v1/sellers/get/${sellerId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         setSeller(data.seller);
@@ -36,12 +40,15 @@ export default function SellerProfile() {
   useEffect(() => {
     if (!sellerId || !currentUserId) return;
 
-    fetch(`https://tradelink-backend-5a6c.onrender.com/api/v1/messages/get/all/conversations/${sellerId}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `https://https://tradelink-backend-6z6y.onrender.com/api/v1/messages/get/all/conversations/${sellerId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then((data) => setMessages(data.messages || []))
       .catch((err) => console.error("Error fetching conversation:", err));
@@ -50,18 +57,21 @@ export default function SellerProfile() {
   const sendMessage = () => {
     if (!newMessage.trim()) return;
 
-    fetch(`https://tradelink-backend-5a6c.onrender.com/api/v1/messages/send`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        senderId: currentUserId,
-        receiverId: sellerId,
-        text: newMessage,
-      }),
-    })
+    fetch(
+      `https://https://tradelink-backend-6z6y.onrender.com/api/v1/messages/send`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          senderId: currentUserId,
+          receiverId: sellerId,
+          text: newMessage,
+        }),
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         setMessages((prev) => [...prev, data.message]); // append new message
@@ -76,10 +86,7 @@ export default function SellerProfile() {
   return (
     <div className="max-w-[1280px] mx-auto px-4 py-20 bg-yellow-50 min-h-screen">
       {/* Back button */}
-      <Link
-        to="/sellers"
-        className="text-blue-600 underline mb-6 block"
-      >
+      <Link to="/sellers" className="text-blue-600 underline mb-6 block">
         ← Back to Sellers
       </Link>
 
@@ -116,9 +123,15 @@ export default function SellerProfile() {
                 alt={product.name}
                 className="h-28 w-full object-cover rounded mb-3"
               />
-              <h3 className="font-semibold text-sm text-orange-600">{product.name}</h3>
-              <p className="text-xs text-gray-700">₦{product.price.toLocaleString()}</p>
-              <p className="text-[10px] text-gray-500">Qty: {product.quantity}</p>
+              <h3 className="font-semibold text-sm text-orange-600">
+                {product.name}
+              </h3>
+              <p className="text-xs text-gray-700">
+                ₦{product.price.toLocaleString()}
+              </p>
+              <p className="text-[10px] text-gray-500">
+                Qty: {product.quantity}
+              </p>
             </div>
           ))}
         </div>
@@ -136,7 +149,9 @@ export default function SellerProfile() {
             messages.map((msg, i) => (
               <div
                 key={i}
-                className={`mb-2 ${msg.senderId === currentUserId ? "text-right" : "text-left"}`}
+                className={`mb-2 ${
+                  msg.senderId === currentUserId ? "text-right" : "text-left"
+                }`}
               >
                 <span
                   className={`inline-block px-3 py-2 rounded-lg ${

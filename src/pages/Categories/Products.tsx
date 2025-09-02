@@ -13,15 +13,19 @@ const Products: React.FC = () => {
 
   // ✅ Fetch sellers from API
   useEffect(() => {
-    fetch("https://tradelink-backend-5a6c.onrender.com/api/v1/sellers/get/all/sellers", {
-      headers: {
-        "Content-Type": "application/json",
-        // 🔑 If auth is required, add token here:
-        // Authorization: `Bearer ${localStorage.getItem("authToken")}`
-      },
-    })
+    fetch(
+      "https://tradelink-backend-6z6y.onrender.com/api/v1/sellers/get/all/sellers",
+      {
+        headers: {
+          "Content-Type": "application/json",
+          // 🔑 If auth is required, add token here:
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
+        console.log(data);
         setSellers(data.sellers || []);
         setFilteredSellers(data.sellers || []);
       })
@@ -107,35 +111,36 @@ const Products: React.FC = () => {
             No sellers found.
           </p>
         ) : (
-          filteredSellers.map((s) => (
-            <div
-              key={s._id}
-              className="border rounded-lg bg-white shadow-sm hover:shadow-md transition p-3 flex flex-col cursor-pointer"
-              onClick={() => handleViewProfile(s._id)}
-            >
-              <div className="relative">
-                <img
-                  src={s.image}
-                  alt={s.name}
-                  className="h-28 w-full object-cover rounded mb-3"
-                />
-              </div>
+          <p>hello</p>
+          // filteredSellers.map((s) => (
+          //   <div
+          //     key={s._id}
+          //     className="border rounded-lg bg-white shadow-sm hover:shadow-md transition p-3 flex flex-col cursor-pointer"
+          //     onClick={() => handleViewProfile(s._id)}
+          //   >
+          //     <div className="relative">
+          //       <img
+          //         src={s.image}
+          //         alt={s.name}
+          //         className="h-28 w-full object-cover rounded mb-3"
+          //       />
+          //     </div>
 
-              <h3 className="font-semibold text-lg sm:text-sm text-orange-600">
-                {s.category}
-              </h3>
-              <p className="font-medium text-[11px] sm:text-xs text-gray-800">
-                {s.name}
-              </p>
-              <p className="text-[10px] sm:text-xs text-gray-500">
-                {s.location}
-              </p>
-              <p className="text-[20px] text-yellow-600">⭐ {s.reviews}</p>
-              <Button className="mt-auto w-full bg-orange-500 text-white hover:bg-orange-600 text-xs py-1.5">
-                View Profile
-              </Button>
-            </div>
-          ))
+          //     <h3 className="font-semibold text-lg sm:text-sm text-orange-600">
+          //       {s.category}
+          //     </h3>
+          //     <p className="font-medium text-[11px] sm:text-xs text-gray-800">
+          //       {s.name}
+          //     </p>
+          //     <p className="text-[10px] sm:text-xs text-gray-500">
+          //       {/* {s.location} */}
+          //     </p>
+          //     <p className="text-[20px] text-yellow-600">⭐ {s.reviews}</p>
+          //     <Button className="mt-auto w-full bg-orange-500 text-white hover:bg-orange-600 text-xs py-1.5">
+          //       View Profile
+          //     </Button>
+          //   </div>
+          // ))
         )}
       </div>
     </div>

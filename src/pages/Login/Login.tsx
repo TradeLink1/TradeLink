@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Link, useNavigate, useLocation } from "react-router-dom"
-import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa"
-import { HiOutlineMail } from "react-icons/hi"
-import { GoLock } from "react-icons/go"
-import { motion } from "framer-motion"
-import Swal from "sweetalert2"
-import api from "../../api/axios"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
+import { HiOutlineMail } from "react-icons/hi";
+import { GoLock } from "react-icons/go";
+import { motion } from "framer-motion";
+import Swal from "sweetalert2";
+import api from "../../api/axios";
 
 const Login: React.FC = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [role, setRole] = useState<"user" | "seller">("user")
-  const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [role, setRole] = useState<"user" | "seller">("user");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const Toast = Swal.mixin({
     toast: true,
@@ -25,20 +25,20 @@ const Login: React.FC = () => {
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
-  })
+  });
 
   const handleGoBack = () => {
     if (window.history.length > 1) {
-      navigate(-1)
+      navigate(-1);
     } else {
-      navigate("/")
+      navigate("/");
     }
-  }
+  };
 
   // ✅ Show modal if user just verified email via link
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const verified = params.get("verified")
+    const params = new URLSearchParams(window.location.search);
+    const verified = params.get("verified");
 
     if (verified === "true") {
       Swal.fire({
@@ -46,38 +46,38 @@ const Login: React.FC = () => {
         title: "Email Verified!",
         text: "Your email has been successfully verified. You can now login.",
         confirmButtonColor: "#F89216",
-      })
+      });
 
       // Remove the query param from URL
-      window.history.replaceState({}, document.title, "/login")
+      window.history.replaceState({}, document.title, "/login");
     }
-  }, [])
+  }, []);
 
   // ✅ Updated Login
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
 
     Swal.fire({
       title: "Signing in...",
       text: "Please wait while we log you in",
       allowOutsideClick: false,
       didOpen: () => {
-        Swal.showLoading()
+        Swal.showLoading();
       },
-    })
+    });
 
     try {
       const res = await api.post("api/v1/auth/login", {
         email,
         password,
         role, // ✅ send selected role to backend
-      })
+      });
 
-      const { token, role: backendRole } = res.data
+      const { token, role: backendRole } = res.data;
 
       // ✅ Role mismatch check
       if (backendRole !== role) {
-        Swal.close()
+        Swal.close();
         Swal.fire({
           icon: "error",
           title: "Role mismatch",
@@ -85,13 +85,13 @@ const Login: React.FC = () => {
             backendRole === "seller"
               ? "This account is registered as a seller. Please select 'I'm a seller'."
               : "This account is registered as a buyer. Please select 'I'm a buyer'.",
-        })
-        return
+        });
+        return;
       }
 
-      // ✅ Save to localStorage properly
-      localStorage.setItem("token", token)
-      localStorage.setItem("role", backendRole)
+      // Save to localStorage properly
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", backendRole);
       localStorage.setItem(
         "user",
         JSON.stringify({
@@ -101,29 +101,40 @@ const Login: React.FC = () => {
           role: res.data.role,
           token: res.data.token,
         })
-      )
+      );
 
-      Swal.close()
+      Swal.close();
       Toast.fire({
         icon: "success",
         title: "Login successful 🎉",
-      })
+      });
 
-      // ✅ Navigate based on role
+      // Navigate based on role
+      // if (backendRole === "seller") {
+      //  const redirectTo =(location.state as any)?.from || "/dashboard";
+      //  navigate(redirectTo)
+      // } else if (backendRole === "user") {
+      //   const redirectTo =(location.state as any)?.from || "/Categories/Products";
+      //   navigate(redirectTo)
+      // } else {
+      //   navigate("/") // fallback
+      // }
+      // Determine where to redirect after login
       const redirectTo =
         (location.state as any)?.from ||
-        (backendRole === "seller" ? "/dashboard" : "/Categories/Products")
+        (backendRole === "seller" ? "/dashboard" : "/Categories/Products");
 
-      navigate(redirectTo)
+      // Navigate to the proper page
+      navigate(redirectTo);
     } catch (err: any) {
-      Swal.close()
+      Swal.close();
 
       Toast.fire({
         icon: "error",
         title: err.response?.data?.message || "Invalid email or password",
-      })
+      });
     }
-  }
+  };
 
   // ✅ Forgot Password Modal
   const handleForgotPassword = async () => {
@@ -137,13 +148,13 @@ const Login: React.FC = () => {
       confirmButtonColor: "#F89216",
       inputValidator: (value) => {
         if (!value) {
-          return "Please enter your email address"
+          return "Please enter your email address";
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return "Please enter a valid email address"
+          return "Please enter a valid email address";
         }
       },
-    })
+    });
 
     if (email) {
       Swal.fire({
@@ -151,36 +162,40 @@ const Login: React.FC = () => {
         text: "Please wait while we send the reset link to your email",
         allowOutsideClick: false,
         didOpen: () => {
-          Swal.showLoading()
+          Swal.showLoading();
         },
-      })
+      });
 
       try {
-        await api.post("api/v1/auth/forgot-password", { email })
+        await api.post("api/v1/auth/forgot-password", {
+          email,
+        });
 
-        Swal.close()
+        Swal.close();
         Swal.fire({
           icon: "success",
           title: "Reset Link Sent!",
           text: "Please check your email for the password reset link",
           confirmButtonColor: "#F89216",
-        })
+        });
       } catch (error: any) {
-        Swal.close()
+        Swal.close();
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: error.response?.data?.message || "Failed to send reset link. Please try again.",
+          text:
+            error.response?.data?.message ||
+            "Failed to send reset link. Please try again.",
           confirmButtonColor: "#F89216",
-        })
+        });
       }
     }
-  }
+  };
 
   // ✅ Reset Password Modal (when token from email is present)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const token = params.get("token")
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
 
     if (token) {
       Swal.fire({
@@ -193,20 +208,24 @@ const Login: React.FC = () => {
         showCancelButton: true,
         confirmButtonText: "Reset",
         preConfirm: () => {
-          const newPassword = (document.getElementById("newPassword") as HTMLInputElement)?.value
-          const confirmPassword = (document.getElementById("confirmPassword") as HTMLInputElement)?.value
+          const newPassword = (
+            document.getElementById("newPassword") as HTMLInputElement
+          )?.value;
+          const confirmPassword = (
+            document.getElementById("confirmPassword") as HTMLInputElement
+          )?.value;
 
           if (!newPassword || !confirmPassword) {
-            Swal.showValidationMessage("Please fill in both fields")
-            return
+            Swal.showValidationMessage("Please fill in both fields");
+            return;
           }
 
           if (newPassword !== confirmPassword) {
-            Swal.showValidationMessage("Passwords do not match")
-            return
+            Swal.showValidationMessage("Passwords do not match");
+            return;
           }
 
-          return { newPassword }
+          return { newPassword };
         },
       }).then(async (result) => {
         if (result.isConfirmed) {
@@ -214,20 +233,27 @@ const Login: React.FC = () => {
             await api.post("api/v1/auth/reset-password", {
               token,
               password: result.value.newPassword,
-            })
+            });
 
-            Swal.fire("Success", "Password reset successful ✅", "success")
-            navigate("/login")
+            Swal.fire("Success", "Password reset successful ✅", "success");
+            navigate("/login");
           } catch (error: any) {
-            Swal.fire("Error", error.response?.data?.message || "Reset failed", "error")
+            Swal.fire(
+              "Error",
+              error.response?.data?.message || "Reset failed",
+              "error"
+            );
           }
         }
-      })
+      });
     }
-  }, [navigate])
+  }, [navigate]);
 
   return (
-    <section id="loginbg" className="bg-[#f89216] min-h-screen flex flex-col items-center justify-center">
+    <section
+      id="loginbg"
+      className="bg-[#f89216] min-h-screen flex flex-col items-center justify-center"
+    >
       <div>
         {/* Go Back Button */}
         <motion.button
@@ -250,14 +276,18 @@ const Login: React.FC = () => {
           <h2 className="text-2xl font-bold text-center text-[#333333]">
             Welcome Back <span className="wave">👋</span>
           </h2>
-          <p className="text-[14px] mb-3 text-center text-[#333333]">Sign in to your TradeLink account</p>
+          <p className="text-[14px] mb-3 text-center text-[#333333]">
+            Sign in to your TradeLink account
+          </p>
 
           {/* Role Switch */}
           <div className="flex justify-between w-max p-0.5 bg-[#f9eac5] border border-[#FEF6E1] mx-auto rounded-full mb-6">
             <button
               onClick={() => setRole("user")}
               className={`px-9 py-2 rounded-full text-sm ${
-                role === "user" ? "bg-[#F89216] text-white" : "hover:bg-[#F89216]/30"
+                role === "user"
+                  ? "bg-[#F89216] text-white"
+                  : "hover:bg-[#F89216]/30"
               }`}
             >
               I’m a buyer
@@ -265,7 +295,9 @@ const Login: React.FC = () => {
             <button
               onClick={() => setRole("seller")}
               className={`px-9 py-2 rounded-full text-sm ${
-                role === "seller" ? "bg-[#F89216] text-white" : "hover:bg-[#F89216]/30"
+                role === "seller"
+                  ? "bg-[#F89216] text-white"
+                  : "hover:bg-[#F89216]/30"
               }`}
             >
               I’m a seller
@@ -275,7 +307,9 @@ const Login: React.FC = () => {
           <form onSubmit={handleLogin}>
             {/* Email */}
             <div className="mb-4 text-left">
-              <label className="block text-sm mb-1 text-[#333333]">Email Address</label>
+              <label className="block text-sm mb-1 text-[#333333]">
+                Email Address
+              </label>
               <div className="relative">
                 <HiOutlineMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input
@@ -291,7 +325,9 @@ const Login: React.FC = () => {
 
             {/* Password */}
             <div className="mb-4 text-left">
-              <label className="block text-sm mb-1 text-[#333333]">Password</label>
+              <label className="block text-sm mb-1 text-[#333333]">
+                Password
+              </label>
               <div className="relative">
                 <GoLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input
@@ -318,7 +354,11 @@ const Login: React.FC = () => {
                 <input type="checkbox" className="accent-[#F89216]" />
                 Remember me
               </label>
-              <button type="button" onClick={handleForgotPassword} className="text-[#F89216] hover:underline">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-[#F89216] hover:underline"
+              >
                 Forgot password?
               </button>
             </div>
@@ -339,14 +379,20 @@ const Login: React.FC = () => {
             {role === "user" ? (
               <p>
                 Don’t have an account?{" "}
-                <Link to="/Register" className="text-[#F89216] font-medium hover:underline">
+                <Link
+                  to="/Register"
+                  className="text-[#F89216] font-medium hover:underline"
+                >
                   Signup
                 </Link>
               </p>
             ) : (
               <p>
                 New to selling?{" "}
-                <Link to="/SellWithUs" className="text-[#F89216] font-medium hover:underline">
+                <Link
+                  to="/SellWithUs"
+                  className="text-[#F89216] font-medium hover:underline"
+                >
                   Join as a seller
                 </Link>
               </p>
@@ -355,7 +401,7 @@ const Login: React.FC = () => {
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
