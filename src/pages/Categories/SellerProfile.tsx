@@ -16,7 +16,7 @@ export default function SellerProfile() {
     if (!sellerId) return;
 
     // ✅ Fetch seller profile
-    fetch(`https://tradelink-backend-5a6c.onrender.com/api/v1/sellers/get/profile?id=${sellerId}`, {
+    fetch(`https://tradelink-backend-6z6y.onrender.com/api/v1/sellers/get/profile?id=${sellerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -30,7 +30,7 @@ export default function SellerProfile() {
       });
 
     // ✅ Fetch seller products
-    fetch(`https://tradelink-backend-5a6c.onrender.com/api/v1/products/seller/${sellerId}`, {
+    fetch(`https://tradelink-backend-6z6y.onrender.com/api/v1/products/seller/${sellerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -38,7 +38,7 @@ export default function SellerProfile() {
       .catch((err) => console.error("Error fetching products:", err));
 
     // ✅ Fetch messages
-    fetch(`https://tradelink-backend-5a6c.onrender.com/api/v1/messages/get/all/conversation/${sellerId}`, {
+    fetch(`https://tradelink-backend-6z6y.onrender.com/api/v1/messages/get/all/conversation/${sellerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -49,7 +49,7 @@ export default function SellerProfile() {
   const sendMessage = () => {
     if (!newMessage.trim()) return;
 
-    fetch(`https://tradelink-backend-5a6c.onrender.com/api/v1/messages/send`, {
+    fetch(`https://tradelink-backend-6z6y.onrender.com/api/v1/messages/send`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

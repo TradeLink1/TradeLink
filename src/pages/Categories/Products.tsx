@@ -13,7 +13,7 @@ const Products: React.FC = () => {
 
   // ✅ Fetch sellers from API
   useEffect(() => {
-    fetch("https://tradelink-backend-5a6c.onrender.com/api/v1/sellers/get/all/sellers", {
+    fetch("https://tradelink-backend-6z6y.onrender.com/api/v1/sellers/get/all/sellers", {
       headers: {
         "Content-Type": "application/json",
         // If token needed:
