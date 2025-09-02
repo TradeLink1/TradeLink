@@ -1,11 +1,8 @@
-import { useState } from "react";
-import {
-  Settings as SettingsIcon,
-  Lock,
-  Store,
-  AlertTriangle,
-  Upload,
-} from "lucide-react";
+"use client"
+
+import { useState, useEffect } from "react"
+import { SettingsIcon, Lock, Store, AlertTriangle, Upload } from "lucide-react"
+import api from "../../api/axios"
 
 const Settings = () => {
   const [formData, setFormData] = useState({
@@ -20,43 +17,118 @@ const Settings = () => {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-  });
+  })
 
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("api/v1/sellers/get/profile")
+        const sellerData = res.data.seller
+
+        setFormData((prev) => ({
+          ...prev,
+          name: sellerData.storeName || "",
+          email: sellerData.email || "",
+          phone: sellerData.phone || "",
+          description: sellerData.description || "",
+          businessCategory: sellerData.businessCategory || "",
+          address: sellerData.address || "",
+        }))
+      } catch (err) {
+        console.log("Error fetching seller profile:", err)
+      }
+    }
+
+    fetchProfile()
+  }, [])
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (e: any) => {
-    const { name, value, type, checked, files } = e.target;
+    const { name, value, type, checked, files } = e.target
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : files ? files[0] : value,
-    });
-  };
+    })
+  }
 
-  const handleSaveProfileStore = (e: any) => {
-    e.preventDefault();
-    alert(" Profile & Store settings saved (dummy).");
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSaveProfileStore = async (e: any) => {
+    e.preventDefault()
+    try {
+      const updateData = new FormData()
+      updateData.append("storeName", formData.name)
+      updateData.append("email", formData.email)
+      updateData.append("phone", formData.phone)
+      updateData.append("description", formData.description)
+      updateData.append("businessCategory", formData.businessCategory)
 
-  const handleChangePassword = (e: any) => {
-    e.preventDefault();
+      if (formData.logo) {
+        updateData.append("logo", formData.logo)
+      }
+
+      const profileRes = await api.put("api/v1/sellers/all/profile", updateData, {
+        headers: { 
+          "Content-Type": "multipart/form-data", 
+          Authorization: `Bearer ${localStorage.getItem("token")}` 
+        },
+      })
+
+      console.log("Profile update response:", profileRes.data)
+      alert("Profile updated successfully!")
+    } catch (err: any) {
+      console.error("Error updating profile:", err.response?.data || err)
+      alert("Failed to update profile: " + (err.response?.data?.message || ""))
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleChangePassword = async (e: any) => {
+    e.preventDefault()
     if (formData.newPassword !== formData.confirmPassword) {
-      alert(" Passwords do not match!");
-      return;
+      alert("Passwords do not match!")
+      return
     }
-    alert("Password changed successfully (dummy).");
-  };
 
-  const handleDeactivate = () => {
-    alert(" Account deactivated (dummy). Backend will handle this later.");
-  };
+    try {
+      await api.put("api/v1/auth/reset-password", {
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+      })
 
-  const handleDelete = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete your account? This cannot be undone."
-      )
-    ) {
-      alert(" Account deleted (dummy). Backend will handle real delete.");
+      alert("Password changed successfully!")
+      setFormData((prev) => ({
+        ...prev,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }))
+    } catch (err: any) {
+      console.error("Error changing password:", err)
+      alert(err.response?.data?.message || "Failed to change password.")
     }
-  };
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete your account? This cannot be undone.")) return
+
+    try {
+      setIsDeleting(true)
+      const res = await api.delete("/api/v1/users/delete/profile", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      alert("Account deleted successfully!")
+      console.log("Delete response:", res.data)
+      localStorage.removeItem("token")
+      window.location.href = "/" // redirect to homepage or login
+    } catch (err: any) {
+      console.error("Error deleting account:", err)
+      alert(err.response?.data?.message || "Failed to delete account.")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   return (
     <div className="p-8 min-h-screen space-y-10">
@@ -68,14 +140,12 @@ const Settings = () => {
 
       {/* Store Preview */}
       <div className="bg-[#ffb25417] border border-[#f8921672] p-6 rounded-2xl shadow-sm">
-        <h3 className="text-lg font-semibold mb-4 text-[#333333]">
-          Store Preview
-        </h3>
+        <h3 className="text-lg font-semibold mb-4 text-[#333333]">Store Preview</h3>
         <div className="flex items-center gap-4">
           <div className="min-w-[80px] h-20 rounded-full border-2 border-[#f89216] flex items-center justify-center overflow-hidden">
             {formData.logo ? (
               <img
-                src={URL.createObjectURL(formData.logo)}
+                src={URL.createObjectURL(formData.logo) || "/placeholder.svg"}
                 alt="Logo Preview"
                 className="w-full h-full object-cover"
               />
@@ -84,12 +154,8 @@ const Settings = () => {
             )}
           </div>
           <div>
-            <p className="font-bold text-xl text-[#f89216]">
-              {formData.name || "Business Name"}
-            </p>
-            <p className="text-sm text-gray-600">
-              {formData.description || "Store description will appear here..."}
-            </p>
+            <p className="font-bold text-xl text-[#f89216]">{formData.name || "Business Name"}</p>
+            <p className="text-sm text-gray-600">{formData.description || "Store description will appear here..."}</p>
             <p className="text-xs font-medium text-[#333333] mt-1 uppercase">
               {formData.businessCategory || "No Category"}
             </p>
@@ -104,25 +170,14 @@ const Settings = () => {
       >
         <div className="flex items-center gap-2">
           <Store className="text-[#f89216]" size={20} />
-          <h3 className="text-lg font-semibold text-[#333333]">
-            Profile & Store Information
-          </h3>
+          <h3 className="text-lg font-semibold text-[#333333]">Profile & Store Information</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputField
-            label="Business Name"
-            name="name"
-            onChange={handleChange}
-          />
-          <InputField
-            label="Email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <InputField label="Phone" name="phone" onChange={handleChange} />
-          <InputField label="Address" name="address" onChange={handleChange} />
+          <InputField label="Business Name" name="name" value={formData?.name} onChange={handleChange} />
+          <InputField label="Email" name="email" value={formData.email} onChange={handleChange} />
+          <InputField label="Phone" name="phone" value={formData?.phone} onChange={handleChange} />
+          <InputField label="Address" name="address" value={formData?.address} onChange={handleChange} />
         </div>
 
         <div className="space-y-4">
@@ -132,16 +187,14 @@ const Settings = () => {
             <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-6 cursor-pointer hover:border-[#f89216] transition">
               {formData.logo ? (
                 <img
-                  src={URL.createObjectURL(formData.logo)}
+                  src={URL.createObjectURL(formData.logo) || "/placeholder.svg"}
                   alt="Logo Preview"
                   className="w-24 h-24 object-cover rounded-full border border-gray-300 mb-3"
                 />
               ) : (
                 <Upload className="w-10 h-10 text-gray-400 mb-2" />
               )}
-              <p className="text-sm text-gray-600 mb-2">
-                {formData.logo ? "Change Logo" : "Click to Upload Logo"}
-              </p>
+              <p className="text-sm text-gray-600 mb-2">{formData.logo ? "Change Logo" : "Click to Upload Logo"}</p>
               <input
                 type="file"
                 name="logo"
@@ -161,25 +214,23 @@ const Settings = () => {
 
           {/* Description */}
           <div>
-            <label className="block font-medium mb-1 text-sm">
-              Description
-            </label>
+            <label className="block font-medium mb-1 text-sm">Description</label>
             <textarea
               name="description"
               className="border p-2 w-full rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30ac57]"
               onChange={handleChange}
+              value={formData.description}
             ></textarea>
           </div>
 
           {/* Business Category */}
           <div>
-            <label className="block font-medium mb-1 text-sm">
-              Business Category
-            </label>
+            <label className="block font-medium mb-1 text-sm">Business Category</label>
             <select
               name="businessCategory"
               className="border p-2 w-full rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30ac57]"
               onChange={handleChange}
+              value={formData.businessCategory}
             >
               <option value="">-- Select --</option>
               <option value="products">Products</option>
@@ -216,9 +267,7 @@ const Settings = () => {
       >
         <div className="flex items-center gap-2">
           <Lock className="text-[#30ac57]" size={20} />
-          <h3 className="text-lg font-semibold text-[#333333]">
-            Account Settings
-          </h3>
+          <h3 className="text-lg font-semibold text-[#333333]">Account Settings</h3>
         </div>
 
         <div className="space-y-4">
@@ -227,18 +276,21 @@ const Settings = () => {
             name="currentPassword"
             type="password"
             onChange={handleChange}
+            value={formData.currentPassword}
           />
           <InputField
             label="New Password"
             name="newPassword"
             type="password"
             onChange={handleChange}
+            value={formData.newPassword}
           />
           <InputField
             label="Confirm Password"
             name="confirmPassword"
             type="password"
             onChange={handleChange}
+            value={formData.confirmPassword}
           />
         </div>
 
@@ -256,29 +308,23 @@ const Settings = () => {
           <AlertTriangle className="text-red-600" size={20} />
           <h3 className="text-lg font-semibold text-red-600">Danger Zone</h3>
         </div>
-        <p className="text-sm text-gray-600 mb-4">
-          Be careful! These actions cannot be undone.
-        </p>
+        <p className="text-sm text-gray-600 mb-4">Be careful! This action cannot be undone.</p>
         <div className="flex flex-col sm:flex-row gap-4">
           <button
-            onClick={handleDeactivate}
-            className="bg-gray-700 hover:bg-gray-900 text-white font-medium px-6 py-2 rounded-full shadow transition"
-          >
-            Deactivate Account
-          </button>
-          <button
             onClick={handleDelete}
-            className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2 rounded-full shadow transition"
+            disabled={isDeleting}
+            className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2 rounded-full shadow transition disabled:opacity-50"
           >
-            Delete Account
+            {isDeleting ? "Deleting..." : "Delete Account"}
           </button>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 // Small reusable input component
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const InputField = ({ label, name, type = "text", value, onChange }: any) => (
   <div>
     <label className="block font-medium mb-1 text-sm">{label}</label>
@@ -290,6 +336,6 @@ const InputField = ({ label, name, type = "text", value, onChange }: any) => (
       className="border p-2 w-full rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30ac57]"
     />
   </div>
-);
+)
 
-export default Settings;
+export default Settings

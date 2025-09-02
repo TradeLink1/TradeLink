@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import api from "../../api/axios";
 import {
   ShoppingBag,
   ClipboardList,
@@ -26,7 +27,12 @@ interface Message {
   message: string;
 }
 
+interface SellerProfile {
+  storeName: String;
+}
+
 const Overview = () => {
+  const [seller, setSeller] = useState<SellerProfile>({ storeName: "" });
   const [stats, setStats] = useState<Stats>({
     totalProducts: 0,
     pendingOrders: 0,
@@ -36,53 +42,47 @@ const Overview = () => {
 
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [recentMessages, setRecentMessages] = useState<Message[]>([]);
+  
 
   useEffect(() => {
     const fetchData = async () => {
+       const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No auth token found!");
+          return;
+        }
       try {
+        const res = await api.get("api/v1/sellers/get/profile")
+          
+
+        // const token = localStorage.getItem("token");
+        // if (!token) {
+        //   console.error("No auth token found!");
+        //   return;
+        // }
+
+        const data = res.data;
+        
+        console.log(res.data)
+        setSeller({ storeName: data.seller.storeName || "" });
+
         setStats({
-          totalProducts: 12,
-          pendingOrders: 3,
-          totalSales: 45000,
-          messages: 5,
+          totalProducts: data.totalProducts,
+          pendingOrders: data.pendingOrders,
+          totalSales: data.totalSales,
+          messages: data.messages,
         });
 
-        setRecentOrders([
-          {
-            id: 1,
-            customer: "John Doe",
-            product: "Gas Cooker",
-            status: "Pending",
-          },
-          {
-            id: 2,
-            customer: "Jane Smith",
-            product: "Blender",
-            status: "Completed",
-          },
-          {
-            id: 3,
-            customer: "Paul Adams",
-            product: "Yam Tubers",
-            status: "Pending",
-          },
-        ]);
-
-        setRecentMessages([
-          {
-            id: 1,
-            sender: "John Doe",
-            message: "Is the gas cooker still available?",
-          },
-          {
-            id: 2,
-            sender: "Mary Obi",
-            message: "Can you deliver to Lagos Island?",
-          },
-        ]);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+        setRecentOrders(data.recentOrders || []);
+        setRecentMessages(data.recentMessages || []);
+      
+        
+  
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      
+    }
+      
     };
 
     fetchData();
@@ -105,7 +105,8 @@ const Overview = () => {
       },
       {
         title: "Total Sales",
-        value: `₦${stats.totalSales.toLocaleString()}`,
+        value: `₦${(stats.totalSales || 0).toLocaleString()}`,
+
         color: "from-green-400 to-green-600",
         icon: DollarSign,
       },
@@ -122,7 +123,11 @@ const Overview = () => {
   return (
     <div className="w-full h-full min-h-screen p-8 space-y-10">
       <h1 className="text-[30px] max-mobile:text-[24px] font-bold mb-5 text-[#333333]">
-        Welcome back, <span className="text-[#f89216]">Rose’s Kitchen!</span>
+        Welcome back, {""}
+        <span className="text-[#f89216]">
+              { seller.storeName || " "}
+
+        </span>
       </h1>
 
       {/* Stat Cards  */}

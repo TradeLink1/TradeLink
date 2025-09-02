@@ -5,112 +5,91 @@ import {
   useLocation,
   Outlet,
 } from "react-router-dom";
-
 import Header from "./static/Header";
 import Footer from "./static/Footer";
 import Home from "./pages/Homepage/Home";
 // import Categories from "./pages/Categories/Categories";
 import SellWithUs from "./pages/SellWIthUs/SellWithUs";
-import Faq from "./pages/Faq/Faq";
+import Faq from "./pages/Faq/Faq"
+
 import Contact from "./pages/Contact/ContactMain";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
-
-// NEW imports for category flow
-import Products from "./pages/Categories/Products"; // Categories list page
-import SellerProfile from "./pages/Categories/SellerProfile"; // Single seller profile
+import Product from "./pages/Categories/Products";
 import Services from "./pages/Categories/Services";
-
 import { SearchProvider } from "./context/SearchContext";
-
 import DashboardLayout from "./pages/sellersDashboard/DashboardLayout";
 import Overview from "./pages/sellersDashboard/Overview";
 import MyListings from "./pages/sellersDashboard/MyListings";
 import Messages from "./pages/sellersDashboard/Messages";
 import UploadProduct from "./pages/sellersDashboard/UploadProduct";
 import Settings from "./pages/sellersDashboard/Settings";
-
-import AdminLayout from "./pages/adminDashboard/AdminLayout";
+import AdminLayout from "./pages/adminDashboard/AdminLayout"
 import AdminOverview from "./pages/adminDashboard/AdminOverview";
 import AdminSellers from "./pages/adminDashboard/AdminSellers";
 import AdminKyc from "./pages/adminDashboard/AdminKyc";
 import AdminSellersReport from "./pages/adminDashboard/AdminReports";
-
-import ScrollToTop from "./settings/ScrollToTop";
+import ProtectRoute from "./components/routes/ProtectRoute";
 import { AuthProvider } from "./context/AuthContext";
-// import ProtectedRoute from "./components/routes/ProtectRoute";
+import VerifyEmail from "./pages/Register/VerifyEmail";
 
-// ------------------ Layout ------------------
 const Layout = () => {
   const location = useLocation();
 
-  // hide header/footer on login, register, and dashboards
-  const hideHeaderFooter =
-    ["/login", "/register"].includes(location.pathname.toLowerCase()) ||
-    location.pathname.startsWith("/dashboard") ||
-    location.pathname.startsWith("/admin");
+  //  hide header and footer in some pages //
+  const hideHeaderFooter = ["/login", "/register"].includes(
+    location.pathname.toLowerCase()
+  );
 
   return (
     <>
       {!hideHeaderFooter && <Header />}
-      <Outlet />
+      <Outlet /> {/* This is where nested routes will render */}
       {!hideHeaderFooter && <Footer />}
     </>
   );
 };
 
-// ------------------ Not Found ------------------
-const NotFound = () => (
-  <div style={{ padding: 24 }}>
-    <h1>404 – Page Not Found</h1>
-    <p>Check the URL or use the navigation.</p>
-  </div>
-);
-
-// ------------------ App ------------------
 const App = () => {
   return (
-    <div className="mx-auto">
+    <div className=" mx-auto">
       <AuthProvider>
-        <SearchProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
-              <Route element={<Layout />}>
-                <Route path="/" element={<Home />} />
-                {/* <Route path="/Categories" element={<Categories />} /> */}
-                <Route path="/Categories/Products" element={<Products />} />
-                <Route path="/Categories/Products/:categoryId/seller/:sellerId" element={<SellerProfile />} />
-                <Route path="/Categories/Services" element={<Services />} />
-                <Route path="/SellWithUs" element={<SellWithUs />} />
-                <Route path="/Faq" element={<Faq />} />
-                <Route path="/Contact" element={<Contact />} />
-                <Route path="/Login" element={<Login />} />
-                <Route path="/Register" element={<Register />} />
-
-                {/* Nested dashboard routes */}
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                  <Route index element={<Overview />} />
-                  <Route path="upload" element={<UploadProduct />} />
-                  <Route path="listings" element={<MyListings />} />
-                  <Route path="messages" element={<Messages />} />
-                  <Route path="settings" element={<Settings />} />
-                </Route>
+      <SearchProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              {/* <Route path="/Categories" element={<Categories />} /> */}
+              <Route path="/Categories/Products" element={<ProtectRoute><Product /></ProtectRoute>} />
+              <Route path="/Categories/Services" element={<ProtectRoute><Services /></ProtectRoute>}/>
+              <Route path="/SellWithUs" element={<SellWithUs />} />
+              <Route path="/Faq" element={<Faq />} />
+              <Route path="/Contact" element={<Contact />} />
+              <Route path="/Login" element={<Login />} />
+              <Route path="/Register" element={<Register />} />
+              <Route path="/VerifyEmail/:token" element={<VerifyEmail/>} />
+            </Route>
+              {/* Nested dashboard routes */}
+              <Route path="/dashboard" element={<ProtectRoute allowedRole="seller"><DashboardLayout/></ProtectRoute>} >
+                <Route index element={<Overview />} />
+                <Route path="upload" element={<UploadProduct />} />
+                <Route path="listings" element={<MyListings />} />
+                <Route path="messages" element={<Messages />} />
+                <Route path="settings" element={<Settings />} />
               </Route>
+          
 
-              {/* Admin routes */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminOverview />} />
-                <Route path="sellers" element={<AdminSellers />} />
-                <Route path="reports" element={<AdminSellersReport />} />
-                <Route path="kyc" element={<AdminKyc />} />
-              </Route>
+            <Route path ="/admin" element={<AdminLayout/>}>
+            <Route index element ={<AdminOverview/>}/>
+            <Route path="sellers" element={<AdminSellers/>}/>
+            <Route path ="reports" element={<AdminSellersReport/>}/>
+            <Route path="kyc" element={<AdminKyc/>} />
+            
 
-              {/* Catch-all route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </SearchProvider>
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </SearchProvider>
       </AuthProvider>
     </div>
   );

@@ -8,11 +8,13 @@ import { HiOutlineShoppingCart } from "react-icons/hi";
 import { MdMiscellaneousServices } from "react-icons/md";
 import { MdOutlineSell } from "react-icons/md";
 import Sidebar from "./Sidebar";
+import api from "../api/axios"; // added for logout
 
 const Header = () => {
   const [showDropdown, setShowDropwn] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [visible, setVisible] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // added for login state
 
   const handleToggle = () => {
     setToggle(!toggle);
@@ -50,6 +52,38 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // ✅ Check login state initially and on storage changes
+  useEffect(() => {
+    const checkLogin = () => {
+      const token = localStorage.getItem("token");
+      setIsLoggedIn(!!token);
+    };
+
+    checkLogin(); // initial check
+    window.addEventListener("storage", checkLogin); // listen for changes
+
+    return () => window.removeEventListener("storage", checkLogin);
+  }, []);
+
+  // ✅ Logout handler
+  const handleLogout = async () => {
+    try {
+      await api.post("api/v1/auth/logout"); // call backend logout
+    } catch (error) {
+      console.error("Logout failed on server, clearing local anyway", error);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      setIsLoggedIn(false);
+
+      // Trigger storage event for other tabs/pages
+      window.dispatchEvent(new Event("storage"));
+
+      // Redirect to homepage
+      window.location.href = "/";
+    }
+  };
 
   return (
     <>
@@ -119,23 +153,37 @@ const Header = () => {
           </section>
 
           <section className="flex gap-3 items-center text-[#333333] font-medium text-[15px] max-tablet:hidden">
-            <a href="/Login" target="_blank" rel="noopener noreferrer">
-              <Button
-                name="Login"
-                border="2px solid "
-                borderColor="#f89216"
-                hoverBgColor="#30ac57"
-                hoverTextColor="white"
-              />
-            </a>
-            <a href="/Register" target="_blank" rel="noopener noreferrer">
-              <Button
-                name="Register"
-                bgColor="#f89216"
-                hoverBgColor="#333333"
-                hoverTextColor="white"
-              />
-            </a>
+            {isLoggedIn ? (
+              <button onClick={handleLogout}>
+                <Button
+                  name="Logout"
+                  border="2px solid "
+                  borderColor="#f89216"
+                  hoverBgColor="#30ac57"
+                  hoverTextColor="white"
+                />
+              </button>
+            ) : (
+              <>
+                <a href="/Login" rel="noopener noreferrer">
+                  <Button
+                    name="Login"
+                    border="2px solid "
+                    borderColor="#f89216"
+                    hoverBgColor="#30ac57"
+                    hoverTextColor="white"
+                  />
+                </a>
+                <a href="/Register" rel="noopener noreferrer">
+                  <Button
+                    name="Register"
+                    bgColor="#f89216"
+                    hoverBgColor="#333333"
+                    hoverTextColor="white"
+                  />
+                </a>
+              </>
+            )}
           </section>
 
           <section className="lg:hidden cursor-pointer max-[1030px]:hidden max-[900px]:flex ">

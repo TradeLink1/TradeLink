@@ -3,15 +3,18 @@ import Button from "../components/reusable/Button";
 import { TbChevronDown } from "react-icons/tb";
 import { HiOutlineShoppingCart } from "react-icons/hi";
 import { MdMiscellaneousServices, MdOutlineSell } from "react-icons/md";
-import { useState } from "react";
+import { useState} from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
 
 const Sidebar = ({ handleToggle }: any) => {
   const [showDropdown, setShowDropwn] = useState(false);
-
+  
   const toggleDropdown = () => {
     setShowDropwn(!showDropdown);
   };
+
+
 
   return (
     <AnimatePresence>
@@ -81,9 +84,11 @@ const Sidebar = ({ handleToggle }: any) => {
             </nav>
           </Link>
 
-          {/* Auth Buttons */}
-          <section className="flex flex-col gap-3 pt-3 text-[15px] font-semibold w-full">
-            {/* 🔥 Open in new tab */}
+          
+
+      
+          
+      
             <a href="/Login" target="_blank" rel="noopener noreferrer">
               <Button
                 name="Login"
@@ -100,9 +105,9 @@ const Sidebar = ({ handleToggle }: any) => {
                 hoverBgColor="#333333"
                 hoverTextColor="white"
               />
-            </a>
+            </a> 
           </section>
-        </section>
+          {/* </section> */}
       </motion.div>
     </AnimatePresence>
   );
