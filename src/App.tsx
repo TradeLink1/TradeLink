@@ -32,6 +32,7 @@ import AdminSellersReport from "./pages/adminDashboard/AdminReports";
 import ProtectRoute from "./components/routes/ProtectRoute";
 import { AuthProvider } from "./context/AuthContext";
 import VerifyEmail from "./pages/Register/VerifyEmail";
+import SellerProfile from "./pages/Categories/SellerProfile";
 
 const Layout = () => {
   const location = useLocation();
@@ -77,6 +78,10 @@ const App = () => {
                   }
                 />
                 <Route path="/SellWithUs" element={<SellWithUs />} />
+                <Route
+                  path="/service-provider/:id"
+                  element={<SellerProfile />}
+                />
                 <Route path="/Faq" element={<Faq />} />
                 <Route path="/Contact" element={<Contact />} />
                 <Route path="/Login" element={<Login />} />

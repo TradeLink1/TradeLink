@@ -2,21 +2,22 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 
 export default function SellerProfile() {
-  const { sellerId } = useParams<{ sellerId: string }>();
+  const { id: sellerId } = useParams<{ id: string }>();
   const [seller, setSeller] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   const currentUserId = localStorage.getItem("userId"); // 👈 store buyer's id in localStorage after login
-  const token = localStorage.getItem("authToken"); // 👈 JWT for auth
+  const token = localStorage.getItem("token"); // 👈 JWT for auth
 
   // Fetch seller details
   useEffect(() => {
+    console.log(sellerId);
     if (!sellerId) return;
 
     fetch(
-      `http://localhost:5500/api/v1/sellers/get/${sellerId}`,
+      `https://tradelink-backend-6z6y.onrender.com/api/v1/sellers/get/profile/${sellerId}`,
       // `https://https://tradelink-backend-6z6y.onrender.com/api/v1/sellers/get/${sellerId}`,
       {
         headers: {
@@ -27,6 +28,7 @@ export default function SellerProfile() {
     )
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
         setSeller(data.seller);
         setLoading(false);
       })
@@ -50,7 +52,10 @@ export default function SellerProfile() {
       }
     )
       .then((res) => res.json())
-      .then((data) => setMessages(data.messages || []))
+      .then((data) => {
+        console.log(data);
+        // setMessages(data.messages || []);
+      })
       .catch((err) => console.error("Error fetching conversation:", err));
   }, [sellerId, token, currentUserId]);
 
@@ -98,22 +103,26 @@ export default function SellerProfile() {
           className="h-32 w-32 rounded-full object-cover shadow"
         />
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-800">{seller.name}</h1>
-          <p className="text-gray-600">📍 {seller.location}</p>
+          <h1 className="text-2xl font-bold text-gray-800 capitalize">
+            {seller.storeName}
+          </h1>
+          <p className="text-gray-600">📍 {seller?.location?.address}</p>
           <p className="text-gray-500">📧 {seller.email}</p>
-          <p className="text-gray-500">📞 {seller.phoneNumber}</p>
-          <p className="text-gray-500">⭐ {seller.reviews} Reviews</p>
+          <p className="text-gray-500">📞 {seller.phone}</p>
+          <p className="text-gray-500">⭐ 10 Reviews</p>
           <p className="text-gray-700">{seller.category}</p>
         </div>
       </div>
 
       {/* Seller Products */}
-      <h2 className="text-xl font-semibold mb-4">Products by {seller.name}</h2>
-      {seller.products?.length === 0 ? (
+      <h2 className="text-xl font-semibold mb-4">
+        Products by {seller.storeName}
+      </h2>
+      {seller?.products?.length === 0 ? (
         <p className="text-gray-500">This seller has no products yet.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {seller.products.map((product: any) => (
+          {/* {seller?.products?.map((product: any) => (
             <div
               key={product._id}
               className="border rounded-lg bg-white shadow-sm hover:shadow-md transition p-3 flex flex-col"
@@ -133,7 +142,7 @@ export default function SellerProfile() {
                 Qty: {product.quantity}
               </p>
             </div>
-          ))}
+          ))} */}
         </div>
       )}
 
@@ -146,27 +155,28 @@ export default function SellerProfile() {
           {messages.length === 0 ? (
             <p className="text-gray-500 text-sm">No messages yet.</p>
           ) : (
-            messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`mb-2 ${
-                  msg.senderId === currentUserId ? "text-right" : "text-left"
-                }`}
-              >
-                <span
-                  className={`inline-block px-3 py-2 rounded-lg ${
-                    msg.senderId === currentUserId
-                      ? "bg-[#F89216] text-white"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  {msg.text}
-                </span>
-              </div>
-            ))
+            <p className="text-gray-500 text-sm">No messages yet.</p>
+            // messages?.map((msg, i) => (
+            //   <div
+            //     key={i}
+            //     className={`mb-2 ${
+            //       msg.senderId === currentUserId ? "text-right" : "text-left"
+            //     }`}
+            //   >
+            //     <span
+            //       className={`inline-block px-3 py-2 rounded-lg ${
+            //         msg.senderId === currentUserId
+            //           ? "bg-[#F89216] text-white"
+            //           : "bg-gray-200"
+            //       }`}
+            //     >
+            //       {msg.text}
+            //     </span>
+            //   </div>
+            // ))
           )}
         </div>
-        <div className="p-2 flex gap-2 border-t">
+        {/* <div className="p-2 flex gap-2 border-t">
           <input
             type="text"
             placeholder="Type a message..."
@@ -181,7 +191,7 @@ export default function SellerProfile() {
           >
             Send
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

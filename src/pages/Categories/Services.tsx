@@ -130,7 +130,7 @@ const ServiceProviders: React.FC = () => {
             <div
               key={p.id}
               className="border rounded-lg bg-white shadow-sm hover:shadow-md transition p-3 flex flex-col cursor-pointer"
-              onClick={() => handleViewProfile(p.id)}
+              onClick={() => handleViewProfile(p._id)}
             >
               <div className="relative">
                 <img
